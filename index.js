@@ -140,13 +140,11 @@ Moonboots.prototype.build = function () {
             });
         },
         function _buildBundles(buildBundlesDone) {
-            if (self.result.js.filename && self.result.css.filename) {
-                //buildFiles found existing files we don't have to build bundles
-                return buildBundlesDone();
-            }
             async.parallel([
                 function _buildCSS(buildCSSDone) {
-                    self.timing('build css start');
+                    if (self.result.css.fromBuild) {
+                        return buildCSSDone();
+                    }
                     //If we're rebuilding on each request we just have to set the hash
                     if (!self.config.cache) {
                         self.result.css.hash = 'nonCached';
@@ -155,6 +153,9 @@ Moonboots.prototype.build = function () {
                     self.bundleCSS(true, buildCSSDone);
                 },
                 function _buildJS(buildJSDone) {
+                    if (self.result.js.fromBuild) {
+                        return buildJSDone();
+                    }
                     //If we're rebuilding on each request we just have to set the hash
                     if (!self.config.cache) {
                         self.result.js.hash = 'nonCached';
